@@ -1,14 +1,14 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.ext.declarative import declarative_base
 
-from config import keys
+from config import config
 
-# all models should inherit from Base to be processed by SQLAlchemy
-Base = declarative_base()
 
-ENGINE = create_engine(keys.DATABASE)
+# Create engine based on the db specified in our config
+ENGINE = create_engine(config.DATABASE, echo=True)
 
-Base.metadata.create_all(ENGINE)
+# Create all tables if they don't exist
+config.Base.metadata.create_all(ENGINE)
 
+# Define session object which we'll instantiate in other modules
 Session = sessionmaker(ENGINE)
