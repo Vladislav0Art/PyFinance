@@ -1,7 +1,7 @@
 import datetime
 
 from sqlalchemy import select
-from sqlalchemy import (Column, Integer, String, DateTime)
+from sqlalchemy import (Column, Integer, String, DateTime, Boolean)
 
 from config import config
 
@@ -13,38 +13,60 @@ class User(config.Base):
 	id = Column(Integer, primary_key=True)
 	first_name = Column(String, nullable=False)
 	last_name = Column(String, nullable=False)
+	username = Column(String, nullable=False, unique=True)
+	is_participating = Column(Boolean, default=False)
+	usd_amount = Column(Integer, default=0)
 	created_at = Column(DateTime, default=datetime.datetime.utcnow)
 	updated_at = Column(DateTime, default=datetime.datetime.utcnow)
 
+
 	def __repr__(self):
-		return '<Class User> id: {id}; first_name: {first_name}; last_name: {last_name}' \
+		return '<Class User> id: {id}; username: {username}' \
 			.format(
 				id=self.id, 
-				first_name=self.first_name, 
-				last_name=self.last_name
+				username=self.username
 			)
+	
 
+	# returns new user instance
 	@classmethod
-	def create_user(cls, user_data):
+	def create_user_instance(cls, user_data):
 		# if any field is not specified
-		if('id' not in user_data or 'first_name' not in user_data or 'last_name' not in user_data):
-			raise ValueError('All fields must be filled')
+		fields = ['id', 'first_name', 'last_name', 'username']
+
+		# if some fields are missing
+		for field in fields:
+			if field not in user_data:
+				raise ValueError('All fields must be filled')
 		
-		user = {
-			'id': user_data['id'],
-			'first_name': user_data['first_name'],
-			'last_name': user_data['last_name']
-		}
+		# creating user instance
+		user = dict()
+		for field in fields:
+			user[field] = user_data[field]
 
 		return cls(**user)
 
-	
-	@classmethod
-	def get_user_by_id(cls, session, id):
-		return session.execute(
-			select(cls).where(cls.id == id)
-		)
 
 	@classmethod
-	def get_users(cls, session):
+	def update_by_id(cls, session, params):
+		id = params['id']
+		update_query = params['query']
+
+		# updating user fields
+		session.query(cls)\
+			.filter(cls.id == id)\
+			.update({
+				**update_query,
+				'updated_at': datetime.datetime.utcnow()
+			})
+		# committing changes
+		session.commit()
+
+	
+	@classmethod
+	def find_by_id(cls, session, id):
+		return session.query(cls).filter(cls.id == id).first()
+
+	@classmethod
+	def retrieve_all(cls, session):
 		return session.query(cls).all()

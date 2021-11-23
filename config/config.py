@@ -12,3 +12,7 @@ Base = declarative_base()
 
 # Telegram constants
 TELEGRAM_BOT_API_KEY = os.environ.get('TELEGRAM_BOT_API_KEY', '2139469664:AAHq190nHx2FNDSnSND8TtSXaTQ5xL5lcUU')
+
+
+# App constants
+COMPETITION_DEFAULT_USD_AMOUNT = 1000

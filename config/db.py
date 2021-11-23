@@ -5,7 +5,7 @@ from config import config
 
 
 # Create engine based on the db specified in our config
-ENGINE = create_engine(config.DATABASE, echo=True)
+ENGINE = create_engine(config.DATABASE, echo=True, connect_args={"check_same_thread": False})
 
 # Create all tables if they don't exist
 config.Base.metadata.create_all(ENGINE)
