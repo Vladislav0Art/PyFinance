@@ -1,6 +1,8 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
+# important to import models to make Base.metadata.create_all(ENGINE) work
+import models
 from config import config
 
 

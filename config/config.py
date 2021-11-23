@@ -1,12 +1,10 @@
 import os
-
 from sqlalchemy.ext.declarative import declarative_base
 
 
 # Database configuration
 DATABASE = os.environ.get('DATABASE', 'sqlite:///pyfinance.db')
 # all models should inherit from Base to be processed by SQLAlchemy
-print('creating Base')
 Base = declarative_base()
 
 
