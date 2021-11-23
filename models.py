@@ -47,6 +47,7 @@ class User(config.Base):
 		return cls(**user)
 
 
+	# updating passed field of user matched by id
 	@classmethod
 	def update_by_id(cls, session, params):
 		id = params['id']
@@ -63,10 +64,13 @@ class User(config.Base):
 		session.commit()
 
 	
+	# searching for user by id 
 	@classmethod
 	def find_by_id(cls, session, id):
 		return session.query(cls).filter(cls.id == id).first()
 
+
+	# retrieving all users
 	@classmethod
 	def retrieve_all(cls, session):
 		return session.query(cls).all()

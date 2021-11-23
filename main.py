@@ -4,10 +4,9 @@ import telebot
 from config import config
 from config import db
 
-# bot api handlers
+# api/bot handlers
 from api.bot.enroll_user_in_competition import enroll_user_in_competition
 from api.bot.register_user import register_user
-
 
 
 
@@ -17,16 +16,16 @@ with db.Session() as session:
 
 	# /start - enrolls user into competition
 	@bot.message_handler(commands=['start', 'participate'])
-	def handler(message):
+	def handler_start_competition(message):
 		enroll_user_in_competition(session, bot, message)
 
 
 	# /register - creates user instance in db
 	@bot.message_handler(commands=['register'])
-	def handler(message):
+	def handler_user_registration(message):
 		register_user(session, bot, message)
 
 
 
 	# running
-	bot.polling(none_stop=True)
+	bot.infinity_polling(none_stop=True)
