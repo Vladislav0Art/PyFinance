@@ -1,31 +1,31 @@
 import telebot
 
-# order matters: models come first, then comes db module
+# config
 from config import config
 from config import db
 
-# api/bot handlers
-from api.bot.enroll_user_in_competition import enroll_user_in_competition
-from api.bot.register_user import register_user
-
+# services/bot
+from services.bot.BotService import BotService
 
 
 
 with db.Session() as session:
 	bot  = telebot.TeleBot(token=config.TELEGRAM_BOT_API_KEY)
 
+	# initializing bot service
+	botService = BotService(session, bot)
+
 	# /start - enrolls user into competition
 	@bot.message_handler(commands=['start', 'participate'])
 	def handler_start_competition(message):
-		enroll_user_in_competition(session, bot, message)
+		botService.enroll_user_in_competition(message)
 
 
 	# /register - creates user instance in db
 	@bot.message_handler(commands=['register'])
 	def handler_user_registration(message):
-		register_user(session, bot, message)
-
+		botService.register_user(message)
 
 
 	# running
-	bot.infinity_polling(none_stop=True)
+	bot.infinity_polling()
