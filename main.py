@@ -4,8 +4,9 @@ import telebot
 from config import config
 from config import db
 
-# services/bot
+# services
 from services.bot.BotService import BotService
+from services.market.marketService import MarketService
 
 
 
@@ -14,6 +15,11 @@ with db.Session() as session:
 
 	# initializing bot service
 	botService = BotService(session, bot)
+
+	# setting metadata for avaliable tickers
+	MarketService.load_stocks('config/stocks.json')
+	MarketService.set_tickers_metadata()
+
 
 	# /start - enrolls user into competition
 	@bot.message_handler(commands=['start', 'participate'])
