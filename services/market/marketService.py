@@ -10,6 +10,7 @@ class MarketService():
 	metadata = []
 
 
+	# loading json file with tickers
 	@staticmethod
 	def load_stocks(path_to_stocks):
 		with open(path_to_stocks) as file:
@@ -22,6 +23,8 @@ class MarketService():
 				MarketService.tickers[i] = MarketService.tickers[i].lower()
 
 
+
+	# sets name and ticker of stocks to metadata prop of class
 	@staticmethod
 	def set_tickers_metadata():
 		params = {
@@ -53,44 +56,85 @@ class MarketService():
 			MarketService.metadata = result
 
 
+
+	# retrieves specified props of api response object and sets them to ticker data
 	@staticmethod
-	def get_tickers_data():
+	def retrieve_tickers(data) -> list:
+		result = []
+
+		for ticker in data:
+			ticker_data = {
+				'ticker': ticker['ticker'],
+				'bidPrice': ticker['bidPrice'], 
+				'askPrice': ticker['askPrice'],
+				'bidSize': ticker['bidSize'],
+				'askSize': ticker['askSize'],
+				'last': ticker['last'],
+				'low': ticker['low'],
+				'high': ticker['high'],
+				'open': ticker['open'],
+				'prevClose': ticker['prevClose'],
+			}
+			
+			# searching for ticker name
+			for current_ticker_info in MarketService.metadata:
+				if(current_ticker_info['ticker'] == ticker['ticker'].lower()):
+					ticker_data['name'] = current_ticker_info['name']
+					break
+			
+			result.append(ticker_data)
+		
+		return result
+
+
+
+	# returns data of all application tickers from the api 
+	@staticmethod
+	def get_market_data() -> list:
+		result = []
+
 		params = {
 			'token': config.TIINGO_API_KEY,
 			'tickers': ','.join(MarketService.tickers),
 		}
 
-		data = []
-
 		try:
 			res = requests.get(urls.IEX_ENDPOINT_URL, params=params)
-			data = res.json()
+			result = MarketService.retrieve_tickers(res.json())
+		
 		except Exception as err:
 			print(err)
+
 		finally:
-			return data
+			return result
 
 
+
+	# returns list of data of all tickers passed in a list
 	@staticmethod
-	def get_ticker_data(ticker):
-		ticker = ticker.lower()
+	def get_tickers_data(tickers) -> list:
+		filtered_tickers = []
+		result = []
+
+		# filtering passed tickers
+		for ticker in tickers:
+			lowered_ticker = ticker.lower()
+
+			if(lowered_ticker in MarketService.tickers):
+				filtered_tickers.append(lowered_ticker)
 		
-		# if passed ticker is not in the list of avaliable tickers
-		if(ticker not in MarketService.tickers):
-			return None
-		
+
 		params = {
 			'token': config.TIINGO_API_KEY,
-			'tickers': ticker,
+			'tickers': ','.join(filtered_tickers),
 		}
 
 		try:
 			res = requests.get(urls.IEX_ENDPOINT_URL, params=params)
-			data = res.json()
-			return data
+			result = MarketService.retrieve_tickers(res.json())
+			
 		except Exception as err:
 			print(err)
-			return None
-
-
 		
+		finally:
+			return result
