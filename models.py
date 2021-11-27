@@ -1,12 +1,14 @@
 import datetime
 
-from sqlalchemy import select
-from sqlalchemy import (Column, Integer, String, DateTime, Boolean)
+from sqlalchemy import select, ForeignKey
+from sqlalchemy import (Column, Integer, String, DateTime, Boolean, Float)
+from sqlalchemy.orm import relationship
+from sqlalchemy.sql.functions import user
 
 from config import config
 
 
-
+# User model
 class User(config.Base):
 	__tablename__ = 'users'
 
@@ -21,7 +23,7 @@ class User(config.Base):
 
 
 	def __repr__(self):
-		return '<Class User> id: {id}; username: {username}' \
+		return "<Class User> id='{id}' username='{username}'" \
 			.format(
 				id=self.id, 
 				username=self.username
@@ -74,3 +76,31 @@ class User(config.Base):
 	@classmethod
 	def retrieve_all(cls, session):
 		return session.query(cls).all()
+
+
+
+# Asset model
+class Asset(config.Base):
+	__tablename__ = 'assets'
+
+	id = Column(Integer, primary_key=True)
+	ticker = Column(String, nullable=False)
+	ticker_name = Column(String, nullable=False)
+	amount = Column(Integer, default=0)
+	total_price = Column(Float, default=0)
+
+	user_id = Column(Integer, ForeignKey('users.id'))
+
+
+	def __repr__(self):
+		return "<Class Asset> id='{id}' ticker='{ticker}'"\
+			.format(
+				id=self.id, 
+				ticker=self.ticker
+			)
+
+
+
+# specifying relationships between models
+User.assets = relationship('Asset', order_by=Asset.ticker, back_populates='user')
+Asset.user = relationship('User', back_populates='assets')

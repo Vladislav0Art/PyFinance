@@ -39,5 +39,5 @@ with db.Session() as session:
 
 
 	# running
-	telebot.apihelper.SESSION_TIME_TO_LIVE = 10 * 60
+	telebot.apihelper.SESSION_TIME_TO_LIVE = 20 * 60
 	bot.infinity_polling()

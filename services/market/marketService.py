@@ -116,12 +116,12 @@ class MarketService():
 		filtered_tickers = []
 		result = []
 
-		# filtering passed tickers
+		# filtering passed tickers and lowercasing them
 		for ticker in tickers:
-			lowered_ticker = ticker.lower()
+			lowercased_ticker = ticker.lower()
 
-			if(lowered_ticker in MarketService.tickers):
-				filtered_tickers.append(lowered_ticker)
+			if(lowercased_ticker in MarketService.tickers):
+				filtered_tickers.append(lowercased_ticker)
 		
 
 		params = {
