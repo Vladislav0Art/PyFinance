@@ -41,7 +41,7 @@ def buy_ticker(session, bot, message):
 		return bot.send_message(message.chat.id, 'Provided ticker is not supported on PyFinance Stock Market')
 
 	# getting ask price for ticker
-	ask_price = MarketService.get_ticker_ask_price(ticker) or 157.87
+	ask_price = MarketService.get_ticker_ask_price(ticker) or 157.12
 
 
 	# if ticker is not being traded now
@@ -59,7 +59,7 @@ def buy_ticker(session, bot, message):
 	if (user.usd_amount < total_price):
 		return bot.send_message(
 			message.chat.id,
-			"Your USD account is less then required for buying:\n<b>Account:</b> {usd_amount}$\n<b>Required:</b> {total_price}$"
+			"Your USD account is less then required for buying:\n\n<b>Account:</b> {usd_amount}$\n<b>Required:</b> {total_price}$"
 			.format(usd_amount=user.usd_amount, total_price=total_price),
 			parse_mode='HTML'
 		)
@@ -75,8 +75,7 @@ def buy_ticker(session, bot, message):
 				'user_id': user_id,
 				'ticker': asset.ticker,
 				'query': {
-					'amount': asset.amount + amount,
-					'total_price': round(asset.total_price + total_price, 2)
+					'amount': asset.amount + amount
 				}
 			})
 		# if user does not have an asset with provided ticker
@@ -86,7 +85,6 @@ def buy_ticker(session, bot, message):
 				'ticker': ticker,
 				'ticker_name': MarketService.get_ticker_name(ticker),
 				'amount': amount,
-				'total_price': total_price,
 				'user_id': user_id,
 			})
 
@@ -96,11 +94,11 @@ def buy_ticker(session, bot, message):
 
 
 		# updating user's usd amount
-		left_usd_amount = round(user.usd_amount - total_price, 2)
+		current_usd_amount = round(user.usd_amount - total_price, 2)
 		User.update_by_id(session, {
 			'id': user_id,
 			'query': {
-				'usd_amount': left_usd_amount
+				'usd_amount': current_usd_amount
 			}
 		})
 
@@ -109,15 +107,16 @@ def buy_ticker(session, bot, message):
 
 		bot.send_message(
 			message.chat.id, 
-			"<strong>Successful transaction:</strong>\n\n<b>Purchased amount of shares:</b> {amount}\n<b>Price for each:</b> {price_each}$\n<b>Total price:</b> {total_price}$\n<b>Left USD account:</b> {left_usd}$"
+			"<strong>Successful transaction:</strong>\n\n<b>Purchased amount of shares:</b> {amount}\n<b>Price for each:</b> {price_each}$\n<b>Total price:</b> {total_price}$\n<b>Current USD account:</b> {current_usd}$"
 			.format(
 				amount=amount,
 				price_each=ask_price,
 				total_price=total_price,
-				left_usd=left_usd_amount
+				current_usd=current_usd_amount
 			),
-			parse_mode='HTML')
+			parse_mode='HTML'
+		)
 
 	except Exception as err:
 		print(err)
-		bot.send_message(message.chat.id, 'Error occured on the server side, please try again')
+		bot.send_message(message.chat.id, 'Error occured on the server side, please, try again')

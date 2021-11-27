@@ -4,12 +4,23 @@ from services.bot.methods.register_user import register_user
 from services.bot.methods.send_market_data import send_market_data
 from services.bot.methods.buy_ticker import buy_ticker
 from services.bot.methods.access_validation import check_registration, check_participating
+from services.bot.methods.sell_ticker import sell_ticker
 
 
 class BotService():
 	def __init__(self, session, bot):
 		self.session = session
 		self.bot = bot
+
+	# if user is registered and participates in competition call passed callback
+	def with_access(self, message, callback):
+		user_id = message.from_user.id
+
+		# if user is registered and participates in competition
+		if(check_registration(self.session, user_id) and check_participating(self.session, user_id)):
+			callback()
+		else:
+			self.bot.send_message(message.chat.id, 'To access the API you have to start participating in the current competition and to be registered')
 
 
 	# @ACCESS: public
@@ -29,10 +40,9 @@ class BotService():
 
 	# @ACCESS: private
 	def buy_ticker(self, message):
-		user_id = message.from_user.id
-
-		# if user is registered and participates in competition
-		if (check_registration(self.session, user_id) and check_participating(self.session, user_id)):
-			buy_ticker(self.session, self.bot, message)
-		else:
-			self.bot.send_message(message.chat.id, 'To access the API you have to start participating in the current competition and to be registered')
+		self.with_access(message, lambda: buy_ticker(self.session, self.bot, message))
+			
+			
+	# @ACCESS: private
+	def sell_ticker(self, message):
+		self.with_access(message, lambda: sell_ticker(self.session, self.bot, message))

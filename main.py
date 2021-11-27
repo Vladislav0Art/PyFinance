@@ -38,10 +38,16 @@ with db.Session() as session:
 		botService.send_market_data(message)
 
 
-	# /buy [ticker] [volume] - buying a ticker of specific volume 
+	# /buy [ticker] [amount] - buying a ticker of specific amount 
 	@bot.message_handler(commands=['buy'])
 	def buy_ticker_handler(message):
 			botService.buy_ticker(message)
+
+
+	# /sell [ticker] [amount] - selling a ticker of specific amount
+	@bot.message_handler(commands=['sell'])
+	def sell_ticker_handler(message):
+		botService.sell_ticker(message)
 
 	# running
 	telebot.apihelper.SESSION_TIME_TO_LIVE = 20 * 60

@@ -114,7 +114,6 @@ class Asset(config.Base):
 	ticker = Column(String, nullable=False)
 	ticker_name = Column(String, nullable=False)
 	amount = Column(Integer, default=0)
-	total_price = Column(Float, default=0)
 
 	user_id = Column(Integer, ForeignKey('users.id'))
 
@@ -134,7 +133,7 @@ class Asset(config.Base):
 
 	@classmethod
 	def create_asset_instance(cls, asset_data):
-		required_fields = ['ticker', 'ticker_name', 'amount', 'total_price', 'user_id']
+		required_fields = ['ticker', 'ticker_name', 'amount', 'user_id']
 
 		# if any fields are missing
 		if not validate_fields(required_fields, asset_data):
