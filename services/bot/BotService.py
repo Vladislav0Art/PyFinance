@@ -1,9 +1,8 @@
-from services.market.MarketService import MarketService
-
 # methods
 from services.bot.methods.enroll_user_in_competition import enroll_user_in_competition
 from services.bot.methods.register_user import register_user
 from services.bot.methods.send_market_data import send_market_data
+from services.bot.methods.buy_ticker import buy_ticker
 
 
 class BotService():
@@ -19,3 +18,6 @@ class BotService():
 
 	def send_market_data(self, message):
 		send_market_data(self.bot, message)
+
+	def buy_ticker(self, message):
+		buy_ticker(self.session, self.bot, message)

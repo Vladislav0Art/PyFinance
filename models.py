@@ -3,9 +3,21 @@ import datetime
 from sqlalchemy import select, ForeignKey
 from sqlalchemy import (Column, Integer, String, DateTime, Boolean, Float)
 from sqlalchemy.orm import relationship
-from sqlalchemy.sql.functions import user
 
 from config import config
+
+
+# checks in any fields are missing
+def validate_fields(required_fields, data):
+	result = True
+
+	for field in required_fields:
+		if field not in data:
+			result = False
+			break
+
+	return result
+
 
 
 # User model
@@ -23,10 +35,11 @@ class User(config.Base):
 
 
 	def __repr__(self):
-		return "<Class User> id='{id}' username='{username}'" \
+		return "<Class User: id='{id}', username='{username}', usd_amount='{usd_amount}'>" \
 			.format(
 				id=self.id, 
-				username=self.username
+				username=self.username,
+				usd_amount=self.usd_amount
 			)
 	
 
@@ -34,19 +47,15 @@ class User(config.Base):
 	@classmethod
 	def create_user_instance(cls, user_data):
 		# if any field is not specified
-		fields = ['id', 'first_name', 'last_name', 'username']
+		required_fields = ['id', 'first_name', 'last_name', 'username']
 
 		# if some fields are missing
-		for field in fields:
-			if field not in user_data:
-				raise ValueError('All fields must be filled')
-		
-		# creating user instance
-		user = dict()
-		for field in fields:
-			user[field] = user_data[field]
+		if not validate_fields(required_fields, user_data):
+			raise ValueError('All fields must be filled')
 
-		return cls(**user)
+		# creating user instance
+		return cls(**user_data)
+
 
 
 	# updating passed field of user matched by id
@@ -71,6 +80,24 @@ class User(config.Base):
 	def find_by_id(cls, session, id):
 		return session.query(cls).filter(cls.id == id).first()
 
+	
+	# returns asset by ticker if user has one, otherwise returns None
+	@classmethod
+	def get_asset_by_ticker(cls, user, provided_ticker):
+		# lowercasing provided ticker
+		provided_ticker = provided_ticker.lower()
+
+		found_asset = None
+		
+		# searching for ticker in user assets
+		for asset in user.assets:
+			if asset.ticker == provided_ticker:
+				found_asset = asset
+				break
+
+		return found_asset
+
+
 
 	# retrieving all users
 	@classmethod
@@ -93,11 +120,43 @@ class Asset(config.Base):
 
 
 	def __repr__(self):
-		return "<Class Asset> id='{id}' ticker='{ticker}'"\
+		return "<Class Asset: id='{id}', user_id='{user_id}' ticker='{ticker}'>"\
 			.format(
 				id=self.id, 
-				ticker=self.ticker
+				ticker=self.ticker,
+				user_id=self.user_id
 			)
+
+
+	# @classmethod
+	# def find_assets_by_user_id(cls, session, user_id):
+	# 	return session.query(cls).filter(cls.user_id == user_id).all()
+
+	@classmethod
+	def create_asset_instance(cls, asset_data):
+		required_fields = ['ticker', 'ticker_name', 'amount', 'total_price', 'user_id']
+
+		# if any fields are missing
+		if not validate_fields(required_fields, asset_data):
+			raise ValueError('All fields must be filled')
+
+		# lowercasing ticker
+		asset_data['ticker'] = asset_data['ticker'].lower()
+
+		return cls(**asset_data)
+
+
+
+	@classmethod
+	def update_ticker_by_user_id(cls, session, params):
+		# updating ticker fields
+		session.query(cls)\
+			.filter(cls.user_id == params['user_id'], cls.ticker == params['ticker'])\
+			.update({
+				**params['query']
+			})
+		# committing changes
+		session.commit()
 
 
 

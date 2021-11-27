@@ -32,11 +32,16 @@ with db.Session() as session:
 	def user_registration_handler(message):
 		botService.register_user(message)
 
-	# /market - returns market data for avaliable tickers
+	# /market [ticker] - returns market data for avaliable tickers
 	@bot.message_handler(commands=['market'])
 	def send_market_data_handler(message):
 		botService.send_market_data(message)
 
+
+	# /buy [ticker] [volume] - buying a ticker of specific volume 
+	@bot.message_handler(commands=['buy'])
+	def buy_ticker_handler(message):
+			botService.buy_ticker(message)
 
 	# running
 	telebot.apihelper.SESSION_TIME_TO_LIVE = 20 * 60

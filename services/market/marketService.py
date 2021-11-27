@@ -1,4 +1,5 @@
 import json
+from os import stat
 import requests
 
 # config
@@ -74,6 +75,14 @@ class MarketService():
 				'high': ticker['high'],
 				'open': ticker['open'],
 				'prevClose': ticker['prevClose'],
+				'isAbleToBuy':	(ticker['askSize'] is not None) and \
+								(ticker['askSize'] > 0) and \
+								(ticker['askPrice'] is not None) and \
+								(ticker['askPrice'] > 0),
+				'isAbleToSell':	(ticker['bidSize'] is not None) and \
+								(ticker['bidSize'] > 0) and \
+								(ticker['bidPrice'] is not None) and \
+								(ticker['bidPrice'] > 0),
 			}
 			
 			# searching for ticker name
@@ -138,3 +147,44 @@ class MarketService():
 		
 		finally:
 			return result
+
+
+	@staticmethod
+	def get_ticker_ask_price(ticker):
+		ticker_data = MarketService.get_tickers_data([ticker])
+		ask_price = None
+		
+		if(len(ticker_data) > 0 and ticker_data[0]['isAbleToBuy']):
+			ask_price = ticker_data[0]['askPrice']
+
+		return ask_price
+
+
+	
+	@staticmethod
+	def get_ticker_bid_price(ticker):
+		ticker_data = MarketService.get_tickers_data([ticker])
+		bid_price = None
+
+		if(len(ticker_data) > 0 and ticker_data[0]['isAbleToSell']):
+			bid_price = ticker_data[0]['bidPrice']
+
+		return bid_price
+
+	
+	@staticmethod
+	def get_ticker_name(ticker):
+		ticker = ticker.lower()
+		name = None
+
+		for ticker_metadata in MarketService.metadata:
+			if ticker_metadata['ticker'] == ticker:
+				name = ticker_metadata['name']
+				break
+			
+		return name
+
+
+	@staticmethod
+	def does_ticker_exist(ticker):
+		return ticker.lower() in MarketService.tickers
