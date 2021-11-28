@@ -160,6 +160,17 @@ class MarketService():
 		return ask_price
 
 
+	@staticmethod
+	def get_last_price(ticker):
+		ticker_data = MarketService.get_tickers_data([ticker])
+		last_price = 0
+
+		if(len(ticker_data) > 0):
+			last_price = ticker_data[0]['last']
+
+		return last_price
+
+
 	
 	@staticmethod
 	def get_ticker_bid_price(ticker):

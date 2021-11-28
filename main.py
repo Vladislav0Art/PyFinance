@@ -7,6 +7,7 @@ from config import db
 # services
 from services.bot.BotService import BotService
 from services.market.MarketService import MarketService
+from services.competition.CompetitionService import CompetitionService
 
 
 
@@ -19,6 +20,15 @@ with db.Session() as session:
 
 	# initializing bot service
 	botService = BotService(session, bot)
+
+
+	# initializing competition service
+	CompetitionService.start({
+		'session': session,
+		'bot': bot,
+		'duration': 30 # 60 * 60 * 24 * 7  # 7 days
+	})
+
 
 
 	# /start - enrolls user into competition

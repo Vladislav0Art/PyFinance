@@ -1,6 +1,7 @@
 from models import Asset, User
 
 from services.market.MarketService import MarketService
+from services.competition.CompetitionService import CompetitionService
 
 
 def get_params_from_command(command):
@@ -45,10 +46,14 @@ def sell_ticker(session, bot, message):
 	user = User.find_by_id(session, user_id)
 
 	# searching for asset with provided ticker in user instance
-	asset = User.get_asset_by_ticker(user, ticker)
+	asset = User.get_asset_by_competition_id_and_ticker({
+		'user': user,
+		'competition_id': CompetitionService.competition_id, 
+		'ticker': ticker,
+	})
 
 	# if user does not have provided asset
-	if (not asset):
+	if (not asset or asset.amount <= 0):
 		return bot.send_message(message.chat.id, 'You do not have any shares of the provided ticker')
 
 	# if user's amount of shares is less than passed amount
@@ -72,9 +77,10 @@ def sell_ticker(session, bot, message):
 
 	try:
 		# updating asset in db
-		Asset.update_ticker_by_user_id(session, {
+		Asset.update_ticker_by_user_and_competition_id(session, {
 			'user_id': user_id,
 			'ticker': ticker,
+			'competition_id': CompetitionService.competition_id,
 			'query': {
 				'amount': asset.amount - amount
 			}

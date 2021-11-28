@@ -1,6 +1,7 @@
 from models import User, Asset
 
 from services.market.MarketService import MarketService
+from services.competition.CompetitionService import CompetitionService
 
 
 def get_params_from_command(command):
@@ -65,15 +66,20 @@ def buy_ticker(session, bot, message):
 		)
 
 	# searching for asset with provided ticker in user instance
-	asset = User.get_asset_by_ticker(user, ticker)
+	asset = User.get_asset_by_competition_id_and_ticker({
+		'user': user, 
+		'competition_id': CompetitionService.competition_id, 
+		'ticker': ticker,
+	})
 
 
 	try:
 		# if user has a ticker then update asset in db
 		if (asset):
-			Asset.update_ticker_by_user_id(session, {
+			Asset.update_ticker_by_user_and_competition_id(session, {
 				'user_id': user_id,
 				'ticker': asset.ticker,
+				'competition_id': CompetitionService.competition_id,
 				'query': {
 					'amount': asset.amount + amount
 				}
@@ -86,6 +92,7 @@ def buy_ticker(session, bot, message):
 				'ticker_name': MarketService.get_ticker_name(ticker),
 				'amount': amount,
 				'user_id': user_id,
+				'competition_id': CompetitionService.competition_id
 			})
 
 			# saving asset instance in db
