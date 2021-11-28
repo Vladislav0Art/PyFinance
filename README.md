@@ -26,9 +26,17 @@
 
   8) `/sell [stock ticker] [amount]` - sells a stock at specified amount. Ticker can be typed in either lower and upper cases. Example: `/sell AAPL 3`.
 
+### Dependencies:
+  1) `pyTelegramBotAPI`   4.2.0
+  2) `SQLAlchemy`         1.4.27
+
+### Launching the program:
+  1) Type from the project folder: `python main.py`
+  2) Open telegram and search for bot `@py_finance_bot`
+
 
 #### P.S.1: 
 The codebase for this project is **complete mess**, please **do not judge the author**, he has spent on this project **too little amount of time** to make it decent `:(`
 
 #### P.S.2:
-Warning: **bugs** and **undesired effects** may occur. Even author has no idea that might happen...
+Warning: `**bugs**` and `**undesired effects**` may occur. Even author has no idea that might happen...
