@@ -53,7 +53,7 @@ class CompetitionService():
 			print(err)
 
 		# creating global ranking
-		ranking_message = CompetitionService.create_ranking_table(sorted_ranks)
+		ranking_message = CompetitionService.create_ranking_table_for_current_competition(sorted_ranks)
 		
 		# sending ranking messages to participated users
 		for rank in sorted_ranks:
@@ -80,7 +80,37 @@ class CompetitionService():
 
 
 	@staticmethod
-	def create_ranking_table(sorted_ranks):
+	def create_ranking_table_by_competition_id(competition_id):		
+		sorted_ranks = UserRank.find_by_competition_id(CompetitionService.session, competition_id)
+
+		# if none ranks found
+		if(len(sorted_ranks) <= 0):
+			return None
+
+		message = '<strong>Winners of the PyFinance Competition #{competition_id}:</strong>\n\n'\
+					.format(competition_id=competition_id)
+
+		rank_template = 'Place <b>#{place}</b>: <b>{username}</b> with <b>{total_account}$</b>\n'
+
+		# creating ranking message
+		for place in range(len(sorted_ranks)):
+			# if top 10 winners are found
+			if (place >= 10):
+				break
+			
+			rank = sorted_ranks[place]
+			# inserting info in message
+			message += rank_template.format(
+				place=place + 1,
+				username=rank.username,
+				total_account=rank.total_account,
+			)
+		
+		return message
+
+
+	@staticmethod
+	def create_ranking_table_for_current_competition(sorted_ranks):
 		message = '<strong>PyFinance Competition #{competition_id} has ended!\nCongratulations to the winners of the week!</strong>\n\n'\
 					.format(competition_id=CompetitionService.competition_id)
 
@@ -118,6 +148,10 @@ class CompetitionService():
 			'competition_id': competition_id
 		})
 
+		# if personal rank not found
+		if (not personal_rank):
+			return None
+
 		# searching for all assets user had in the end of the competition
 		assets = Asset.retrieve_by_user_and_competition_id(CompetitionService.session, {
 			'user_id': user.id,
@@ -140,6 +174,10 @@ class CompetitionService():
 				ticker_name=asset.ticker_name,
 				amount=asset.amount
 			)
+
+		# if assets do not exist
+		if(len(assets) <= 0):
+			personal_message += 'No assets\n'
 
 		return personal_message
 

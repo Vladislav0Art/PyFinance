@@ -1,6 +1,6 @@
 import datetime
 
-from sqlalchemy import ForeignKey
+from sqlalchemy import ForeignKey, desc
 from sqlalchemy import (Column, Integer, String, DateTime, Boolean, Float)
 from sqlalchemy.orm import relationship
 
@@ -249,10 +249,20 @@ class UserRank(config.Base):
 		competition_id = params['competition_id']
 
 		return session\
-					.query(cls)\
-					.filter(cls.user_id == user_id, 
-							cls.competition_id == competition_id)\
-					.first()
+						.query(cls)\
+						.filter(cls.user_id == user_id, 
+								cls.competition_id == competition_id)\
+						.first()
+
+
+
+	@classmethod
+	def find_by_competition_id(cls, session, competition_id):
+		return session\
+							.query(cls)\
+							.filter(cls.competition_id == competition_id)\
+							.order_by(desc(cls.total_account))\
+							.all()
 
 
 

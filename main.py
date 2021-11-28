@@ -59,6 +59,12 @@ with db.Session() as session:
 	def sell_ticker_handler(message):
 		botService.sell_ticker(message)
 
+
+	# /ranking [competition_id] - prints ranking of the competition with passed id or the current competition
+	@bot.message_handler(commands=['ranking'])
+	def send_ranking_data_handler(message):
+		botService.send_ranking_data(message)
+
 	# running
 	telebot.apihelper.SESSION_TIME_TO_LIVE = 20 * 60
 	bot.infinity_polling()
