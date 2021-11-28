@@ -3,6 +3,7 @@ import datetime
 from sqlalchemy import ForeignKey, desc
 from sqlalchemy import (Column, Integer, String, DateTime, Boolean, Float)
 from sqlalchemy.orm import relationship
+from sqlalchemy.sql.expression import false
 
 # config
 from config import config
@@ -259,19 +260,110 @@ class UserRank(config.Base):
 	@classmethod
 	def find_by_competition_id(cls, session, competition_id):
 		return session\
-							.query(cls)\
-							.filter(cls.competition_id == competition_id)\
-							.order_by(desc(cls.total_account))\
-							.all()
+				.query(cls)\
+				.filter(cls.competition_id == competition_id)\
+				.order_by(desc(cls.total_account))\
+				.all()
+
+
+
+# Transaction model
+class Transaction(config.Base):
+	__tablename__ = 'transactions'
+
+	id = Column(Integer, primary_key=True)
+	user_id = Column(Integer, ForeignKey('users.id'))
+	competition_id = Column(Integer, nullable=False)
+	type = Column(String, nullable=False)
+	ticker = Column(String, nullable=False)
+	ticker_name = Column(String, nullable=False)
+	amount = Column(Integer, nullable=False)
+	ticker_price = Column(Float, nullable=False)
+	created_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+	def __repr__(self):
+		return "<Class Transaction: id='{id}', user_id='{user_id}', competition_id='{competition_id}',\n\
+			ticker='{ticker}', ticker_price='{ticker_price}'>"\
+			.format(
+				id=self.id, 
+				user_id=self.user_id,
+				competition_id=self.competition_id,
+				ticker=self.ticker,
+				ticker_price=self.ticker_price
+			)
+
+
+	@classmethod
+	def create_transaction_instance(cls, transaction_data):
+		required_fields = ['user_id', 'competition_id', 'type', 'ticker', 'amount', 'ticker_price']
+
+		# if any fields are missing
+		if not validate_fields(required_fields, transaction_data):
+			raise ValueError('All fields must be filled')
+
+		ticker = transaction_data['ticker'].lower()
+
+		transaction_data['ticker'] = ticker
+		transaction_data['ticker_name'] = MarketService.get_ticker_name(ticker)
+		
+		return cls(**transaction_data)
+
+
+	
+	@classmethod
+	def find_by_user_and_competition_id(cls, session, params):
+		user_id = params['user_id']
+		competition_id = params['competition_id']
+
+		return session\
+				.query(cls)\
+				.filter(cls.competition_id == competition_id, cls.user_id == user_id)\
+				.order_by(desc(cls.created_at))\
+				.all()
+
+
+	@classmethod
+	def find_by_user_competition_ids_and_ticker(cls, session, params):
+		user_id = params['user_id']
+		competition_id = params['competition_id']
+		ticker = params['ticker'].lower()
+
+
+		return session\
+				.query(cls)\
+				.filter(
+					cls.user_id == user_id,
+					cls.competition_id == competition_id,
+					cls.ticker == ticker,
+				)\
+				.order_by(desc(cls.created_at))\
+				.all()
+
+	
+	@classmethod
+	def estimate_profit_of_buying_transaction(cls, transaction):
+		buying_total_price = transaction.amount * transaction.ticker_price
+		
+		last_market_price = MarketService.get_last_price(transaction.ticker)
+		current_total_price = transaction.amount * last_market_price
+
+		price_profit_usd = round(current_total_price - buying_total_price, 2)
+		price_profit_percent = round(last_market_price / transaction.ticker_price * 100 - 100, 2)
+
+		return (price_profit_usd, price_profit_percent)
 
 
 
 # specifying relationships between models
 
-# User - Asset
+# User <--> Asset
 User.assets = relationship('Asset', order_by=Asset.competition_id, back_populates='user')
 Asset.user = relationship('User', back_populates='assets')
 
-# User - UserRank
+# User <--> UserRank
 User.ranks = relationship('UserRank', order_by=UserRank.competition_id, back_populates='user')
 UserRank.user = relationship('User', back_populates='ranks')
+
+# User <--> Transaction
+User.transactions = relationship('Transaction', order_by=Transaction.created_at, back_populates='user')
+Transaction.user = relationship('User', back_populates='transactions')

@@ -26,7 +26,7 @@ with db.Session() as session:
 	CompetitionService.start({
 		'session': session,
 		'bot': bot,
-		'duration': 30 # 60 * 60 * 24 * 7  # 7 days
+		'duration': 45 # 60 * 60 * 24 * 7  # 7 days
 	})
 
 
@@ -64,6 +64,12 @@ with db.Session() as session:
 	@bot.message_handler(commands=['ranking'])
 	def send_ranking_data_handler(message):
 		botService.send_ranking_data(message)
+
+
+	# /assets [ticker] - prints assets info
+	@bot.message_handler(commands=['assets'])
+	def send_assets_data_handler(message):
+		botService.send_assets_data(message)
 
 	# running
 	telebot.apihelper.SESSION_TIME_TO_LIVE = 20 * 60

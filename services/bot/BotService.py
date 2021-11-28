@@ -6,6 +6,7 @@ from services.bot.methods.buy_ticker import buy_ticker
 from services.bot.methods.access_validation import check_registration, check_participating
 from services.bot.methods.sell_ticker import sell_ticker
 from services.bot.methods.send_ranking_data import send_ranking_data
+from services.bot.methods.send_assets_data import send_assets_data
 
 
 class BotService():
@@ -52,3 +53,8 @@ class BotService():
 	# @ACCESS: private
 	def send_ranking_data(self, message):
 		self.with_access(message, lambda: send_ranking_data(self.session, self.bot, message))
+
+
+	# @ACCESS: private
+	def send_assets_data(self, message):
+		self.with_access(message, lambda: send_assets_data(self.session, self.bot, message))

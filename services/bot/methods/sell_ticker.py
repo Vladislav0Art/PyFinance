@@ -1,4 +1,4 @@
-from models import Asset, User
+from models import Asset, Transaction, User
 
 from services.market.MarketService import MarketService
 from services.competition.CompetitionService import CompetitionService
@@ -97,6 +97,19 @@ def sell_ticker(session, bot, message):
 				'usd_amount': current_account_usd
 			}
 		})
+
+		transaction = Transaction.create_transaction_instance({
+			'user_id': user_id, 
+			'competition_id': CompetitionService.competition_id, 
+			'type': 'selling', 
+			'ticker': ticker, 
+			'amount': amount, 
+			'ticker_price': bid_price,
+		})
+
+		# saving transaction
+		session.add(transaction)
+		session.commit()
 
 		# sending response
 		bot.send_message(

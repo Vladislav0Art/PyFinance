@@ -1,4 +1,4 @@
-from models import User, Asset
+from models import User, Asset, Transaction
 
 from services.market.MarketService import MarketService
 from services.competition.CompetitionService import CompetitionService
@@ -95,8 +95,23 @@ def buy_ticker(session, bot, message):
 				'competition_id': CompetitionService.competition_id
 			})
 
-			# saving asset instance in db
+			# adding asset in session
 			session.add(asset)
+
+			# creating transaction
+			transaction = Transaction.create_transaction_instance({
+				'user_id': user_id, 
+				'competition_id': CompetitionService.competition_id, 
+				'type': 'buying', 
+				'ticker': asset.ticker, 
+				'amount': asset.amount, 
+				'ticker_price': ask_price,
+			})
+
+			# adding transaction in session
+			session.add(transaction)
+
+			# saving data in db
 			session.commit()
 
 

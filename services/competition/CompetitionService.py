@@ -225,6 +225,7 @@ class CompetitionService():
 
 			# calculating total user account
 			total_account = user.usd_amount + Asset.calculate_market_price_of_assets(assets)
+			total_account = round(total_account, 2)
 
 			# appending total market price of assets and user id in list
 			rankings.append((total_account, user.username, user.id))
