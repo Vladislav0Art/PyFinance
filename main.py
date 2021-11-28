@@ -26,7 +26,7 @@ with db.Session() as session:
 	CompetitionService.start({
 		'session': session,
 		'bot': bot,
-		'duration': 60 * 60 * 24 * 7  # 7 days
+		'duration': 60 * 60 * 60 * 24 * 7  # 7 days
 	})
 
 	# /start - sends bot info
