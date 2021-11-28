@@ -69,11 +69,11 @@ def sell_ticker(session, bot, message):
 		)
 
 	# getting ask price for ticker
-	bid_price = MarketService.get_ticker_bid_price(ticker) or 157.12
+	bid_price = MarketService.get_ticker_bid_price(ticker)
 
 	# if ticker is not being traded now
-	# if (bid_price is None):
-	# 	return bot.send_message(message.chat.id, 'Ticker is not being traded now')
+	if (bid_price is None):
+		return bot.send_message(message.chat.id, 'Ticker is not being traded now')
 
 	try:
 		# updating asset in db

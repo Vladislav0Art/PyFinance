@@ -42,12 +42,12 @@ def buy_ticker(session, bot, message):
 		return bot.send_message(message.chat.id, 'Provided ticker is not supported on PyFinance Stock Market')
 
 	# getting ask price for ticker
-	ask_price = MarketService.get_ticker_ask_price(ticker) or 157.12
+	ask_price = MarketService.get_ticker_ask_price(ticker)
 
 
 	# if ticker is not being traded now
-	# if (ask_price is None):
-	# 	return bot.send_message(message.chat.id, 'Ticker is not being traded now')
+	if (ask_price is None):
+		return bot.send_message(message.chat.id, 'Ticker is not being traded now')
 
 
 	# searching for user in db
