@@ -15,7 +15,7 @@ def register_user(session, bot, message):
 
 		# if user already registered
 		if(user): 
-			return bot.send_message(message.chat.id, 'You are already registered. If you want to participate in the current competition type /start or /participate')
+			return bot.send_message(message.chat.id, 'You are already registered. If you want to participate in the current competition type /participate')
 
 		# creating user instance
 		user = models.User.create_user_instance({
