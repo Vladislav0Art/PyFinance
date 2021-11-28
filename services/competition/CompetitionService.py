@@ -53,7 +53,10 @@ class CompetitionService():
 			print(err)
 
 		# creating global ranking
-		ranking_message = CompetitionService.create_ranking_table_for_current_competition(sorted_ranks)
+		ranking_message = '<strong>PyFinance Competition #{competition_id} has ended!\nCongratulations to the winners of the week!</strong>\n\n'\
+					.format(competition_id=CompetitionService.competition_id)
+		
+		ranking_message += CompetitionService.create_ranking_table_for_current_competition(sorted_ranks)
 		
 		# sending ranking messages to participated users
 		for rank in sorted_ranks:
@@ -87,9 +90,7 @@ class CompetitionService():
 		if(len(sorted_ranks) <= 0):
 			return None
 
-		message = '<strong>Winners of the PyFinance Competition #{competition_id}:</strong>\n\n'\
-					.format(competition_id=competition_id)
-
+		message = ''
 		rank_template = 'Place <b>#{place}</b>: <b>{username}</b> with <b>{total_account}$</b>\n'
 
 		# creating ranking message
@@ -111,8 +112,7 @@ class CompetitionService():
 
 	@staticmethod
 	def create_ranking_table_for_current_competition(sorted_ranks):
-		message = '<strong>PyFinance Competition #{competition_id} has ended!\nCongratulations to the winners of the week!</strong>\n\n'\
-					.format(competition_id=CompetitionService.competition_id)
+		message = ''
 
 		rank_template = 'Place <b>#{place}</b>: <b>{username}</b> with <b>{total_account}$</b>\n'
 

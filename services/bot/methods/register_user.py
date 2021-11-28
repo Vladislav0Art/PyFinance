@@ -29,7 +29,7 @@ def register_user(session, bot, message):
 		# saving user in db	
 		try:
 			session.commit()
-			bot.send_message(message.chat.id, 'You are successfully registered. Now you can paricipate in weekly competition. To enroll in the current competition type /start or /participate')
+			bot.send_message(message.chat.id, 'You are successfully registered. Now you can paricipate in weekly competition. To enroll in the current competition type /participate')
 		except IntegrityError as err:
 			print(err)
 			bot.send_message(message.chat.id, 'Something went wrong. Try one more time')

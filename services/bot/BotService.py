@@ -22,7 +22,7 @@ class BotService():
 		if(check_registration(self.session, user_id) and check_participating(self.session, user_id)):
 			callback()
 		else:
-			self.bot.send_message(message.chat.id, 'To access the API you have to start participating in the current competition and to be registered')
+			self.bot.send_message(message.chat.id, 'To access the API you have to start participating in the current competition and to be registered, type /register')
 
 
 	# @ACCESS: public

@@ -33,11 +33,15 @@ def send_ranking_data(session, bot, message):
 		# retrieving competition id
 		competition_id = params[0]
 
-		global_ranking_message = CompetitionService.create_ranking_table_by_competition_id(competition_id)
+		global_ranking_message = '<strong>Winners of the PyFinance Competition #{competition_id}:</strong>\n\n'\
+					.format(competition_id=competition_id)
+		additional_msg = CompetitionService.create_ranking_table_by_competition_id(competition_id)
 
 		# data of provided competition not found
-		if (global_ranking_message is None):
+		if (additional_msg is None):
 			return bot.send_message(message.chat.id, 'Data for the provided competition not found')
+
+		global_ranking_message += additional_msg
 
 		# creating personal ranking
 		personal_rank_message = CompetitionService.create_personal_rank_message({
@@ -58,7 +62,10 @@ def send_ranking_data(session, bot, message):
 		sorted_ranks = CompetitionService.calculate_rankings()
 		
 		# creating global ranking
-		ranking_message = CompetitionService.create_ranking_table_for_current_competition(sorted_ranks)
+		ranking_message = '<strong>Current PyFinance Competition #{competition_id} results:</strong>\n\n'\
+			.format(competition_id=CompetitionService.competition_id)
+
+		ranking_message += CompetitionService.create_ranking_table_for_current_competition(sorted_ranks)
 		
 		# creating personal ranking
 		personal_rank_message = CompetitionService.create_personal_rank_message({
